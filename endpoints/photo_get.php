@@ -15,6 +15,7 @@ function photo_data($post) {
         'id' => $post->ID,
         'author' => $user->user_login,
         'title' => $post->post_title,
+        'subtitle' => $post_meta['subtitle'],
         'date' => $post->post_date,
         'src' => $src,
         'weight' => $post_meta['weight'][0],
