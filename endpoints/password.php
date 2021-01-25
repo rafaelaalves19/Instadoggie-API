@@ -59,7 +59,6 @@ function api_password_reset($request) {
     $key = $request['key'];
     $user = get_user_by('login', $login);
 
-
     //checking if there is a user
     if (empty($user)) {
         $response = new WP_Error('error', 'This user does not exists', ['status' => 401]);

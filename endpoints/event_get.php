@@ -1,13 +1,12 @@
 <?php 
-///// -- ROUTE TO GET PHOTOS -- /////
+///// -- ROUTE TO GET EVENT -- /////
 
 
 
-//function photo_data to organize the data from $post
+//function event_data to organize the data from $post
 //this function will be used to fetch one post OR a list of posts
-function photo_data($post) {
+function event_data($post) {
     $post_meta = get_post_meta($post->ID);
-    $src = wp_get_attachment_image_src($post_meta['img'][0], 'large')[0];
     $user = get_userdata($post->post_author);
     $total_comments = get_comments_number($post->ID);
 
@@ -15,20 +14,20 @@ function photo_data($post) {
         'id' => $post->ID,
         'author' => $user->user_login,
         'title' => $post->post_title,
-        'subtitle' => $post->post_content,
-        'date' => $post->post_date,
+        'description' => $post->post_content,
         'category' => $post->post_category,
-        'src' => $src,
-        'weight' => $post_meta['weight'][0],
-        'age' => $post_meta['age'][0],
-        'access' => $post_meta['access'][0],
+        'date' => $post->post_date,
+        'local' => $post_meta['local'][0],
+        'date' => $post_meta['date'][0],
+        'time' => $post_meta['time'][0],
+        'joined_list' => explode(",", $post_meta['joined_list'][0]),
         'total_comments' => $total_comments,
     ];
 }
 
 
 //function to fetch the DB content from the user request
-function api_photo_get($request) {
+function api_event_get($request) {
     $post_id = $request['id'];
     $post = get_post($post_id);
 
@@ -40,9 +39,9 @@ function api_photo_get($request) {
     }
 
 
-    $photo = photo_data($post);
-    $photo['access'] = (int) $photo['access'] + 1; //adding 1 access each time the post is accessed
-    update_post_meta($post_id, 'access', $photo['access']); //to save the access counting in the DB
+    $event = event_data($post);
+    $event['access'] = (int) $photo['access'] + 1; //adding 1 access each time the post is accessed
+    update_post_meta($post_id, 'access', $event['access']); //to save the access counting in the DB
 
 
 
@@ -53,7 +52,7 @@ function api_photo_get($request) {
 
     //showing both (photo+comments) when a post is accessed
     $response = [
-        'photo' => $photo,
+        'event' => $event,
         'comments' => $comments,
     ];
 
@@ -62,20 +61,20 @@ function api_photo_get($request) {
 }
 
 //function to define the delete route
-function register_api_photo_get() {
-    register_rest_route('api', '/photo/(?P<id>[0-9]+)', [ 
+function register_api_event_get() {
+    register_rest_route('api', '/event/(?P<id>[0-9]+)', [ 
         'methods' => WP_REST_Server::READABLE,
-        'callback' => 'api_photo_get',
+        'callback' => 'api_event_get',
     ]);
 }
 
-add_action('rest_api_init', 'register_api_photo_get');
+add_action('rest_api_init', 'register_api_event_get');
 
 
 
-/////////////////// getting a LIST of photos ///////////////////////
+/////////////////// getting a LIST of event ///////////////////////
 
-function api_photos_get($request) {
+function api_event_list_get($request) {
     $_total = sanitize_text_field($request['_total']) ?: 6;
     $_page = sanitize_text_field($request['_page']) ?: 1; 
     $_user = sanitize_text_field($request['_user']) ?: 0;
@@ -91,8 +90,8 @@ function api_photos_get($request) {
     //arguments for searching
     $args = [
         'post_type' => 'post',
+        'category_name' => 'event',     
         'posts_per_page' => $_total,
-        'cat' => '1',
         'paged' => $_page,
     ];
 
@@ -106,25 +105,25 @@ function api_photos_get($request) {
 
     
     //using the photo_data function to get the posts organized 
-    $photos = [];
+    $event_list = [];
     if ($posts) {
       foreach ($posts as $post) {
-        $photos[] = photo_data($post);
+        $event_list[] = event_data($post);
       }
     }
 
-    return rest_ensure_response($photos);
+    return rest_ensure_response($event_list);
 }
 
 //function to define the delete route
-function register_api_photos_get() {
-    register_rest_route('api', '/photo', [ 
+function register_api_event_list_get() {
+    register_rest_route('api', '/event', [ 
         'methods' => WP_REST_Server::READABLE,
-        'callback' => 'api_photos_get',
+        'callback' => 'api_event_list_get',
     ]);
 }
 
-add_action('rest_api_init', 'register_api_photos_get');
+add_action('rest_api_init', 'register_api_event_list_get');
 
 ?>
 

@@ -30,6 +30,10 @@ require_once $dirbase . '/endpoints/statistics_get.php';
 
 require_once $dirbase . '/endpoints/password.php';
 
+require_once $dirbase . '/endpoints/event_post.php';
+require_once $dirbase . '/endpoints/event_get.php';
+require_once $dirbase . '/endpoints/event_put.php';
+require_once $dirbase . '/endpoints/event_delete.php';
 
 //update the WP photo standard size
 update_option('large_size_w', 1000);

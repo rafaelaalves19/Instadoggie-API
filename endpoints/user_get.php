@@ -8,7 +8,6 @@ function api_user_get($request) {
     $user = wp_get_current_user(); //to get the current loged user
     $user_id = $user->ID;
 
-
     //error treatment when there is no token  
     if ($user_id === 0) {
        $response = new WP_Error('error', 'This user does not have permission', ['status' => 401]);
